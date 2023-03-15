@@ -1,0 +1,44 @@
+{
+	"version": "2.0.0",
+	"tasks":
+	[
+		{
+			"args": [],
+			"type": "shell",
+			"label": "make",
+			"group": "build",
+			"command": "make ${input:mode_out}",
+			"presentation": 
+			{
+				"echo": false,
+				"clear": true,
+				"focus": true,
+				"panel": "dedicated",
+				"showReuseMessage": false,
+			}
+		},
+		{
+			"args": [],
+			"type": "shell",
+			"group": "build",
+			"label": "gnuplot",
+			"command": "gnuplot -p ${file}",
+			"presentation": 
+			{
+				"echo": false,
+				"clear": true,
+				"focus": true,
+				"panel": "dedicated",
+				"showReuseMessage": false,
+			}
+		}
+	],
+	"inputs": [
+		{
+			"id": "mode_out",
+			"default": "run m=r",
+			"description": "Mode:",
+			"type": "promptString"
+		}
+	]
+}
