@@ -1,6 +1,7 @@
 //std
 #include <cmath>
 #include <cstdio>
+#include <cstring>
 
 //data
 FILE *fin, *fout;
@@ -126,11 +127,15 @@ static void solve(void)
 			const double r2 = b * M_PI / h;
 			if(lt == 1)
 			{
-				qn[nt * i + j] = q / w / h * sin(a * M_PI * x1 / w) * sin(b * M_PI * x2 / h);
+				qn[nt * i + j] = 4 * q / w / h * sin(a * M_PI * x1 / w) * sin(b * M_PI * x2 / h);
+			}
+			if(lt == 2)
+			{
+				qn[nt * i + j] = q / s1 / s2 * sin(r1 * x1) * sin(r2 * x2) * sin(r1 * s1 / 2) * sin(r2 * s2 / 2);
 			}
 			if(lt == 4)
 			{
-				qn[nt * i + j] = q / s1 / s2 * sin(r1 * x1) * sin(r2 * x2) * sin(r1 * s1 / 2) * sin(r2 * s2 / 2);
+				qn[nt * i + j] = 16 * q / a / b / M_PI / M_PI * sin(r1 * x1) * sin(r2 * x2) * sin(r1 * s1 / 2) * sin(r2 * s2 / 2);
 			}
 			dn[nt * i + j] = qn[nt * i + j] / D / pow(pow(a * M_PI / w, 2) + pow(b * M_PI / h, 2), 2);
 		}
@@ -139,17 +144,16 @@ static void solve(void)
 static void derived(void)
 {
 	FILE* file[9];
+	double min[9], max[9];
 	const unsigned a = m[0] + 1;
 	const unsigned b = m[1] + 1;
-	file[0] = fopen("u3.txt", "w");
-	file[1] = fopen("t1.txt", "w");
-	file[2] = fopen("t2.txt", "w");
-	file[3] = fopen("k11.txt", "w");
-	file[4] = fopen("k22.txt", "w");
-	file[5] = fopen("k12.txt", "w");
-	file[6] = fopen("M11.txt", "w");
-	file[7] = fopen("M22.txt", "w");
-	file[8] = fopen("M12.txt", "w");
+	const char* names[] = {"u3", "t1", "t2", "k11", "k22", "k12", "M11", "M22", "M12"};
+	for(unsigned i = 0; i < 9; i++)
+	{
+		char path[200];
+		strcat(strcpy(path, names[i]), ".txt");
+		file[i] = fopen(path, "w");
+	}
 	for(unsigned i = 0; i <= m[1]; i++)
 	{
 		for(unsigned j = 0; j <= m[0]; j++)
@@ -178,6 +182,24 @@ static void derived(void)
 			sp[2] = D * (1 - v * v) / 2 / (1 + 2 * v) * ep[2];
 			for(unsigned k = 0; k < 3; k++)
 			{
+				if(i == 0 && j == 0)
+				{
+					min[k + 0] = max[k + 0] = dp[k];
+					min[k + 3] = max[k + 3] = ep[k];
+					min[k + 6] = max[k + 6] = sp[k];
+				}
+				else
+				{
+					min[k + 0] = fmin(min[k + 0], dp[k]);
+					min[k + 3] = fmin(min[k + 3], ep[k]);
+					min[k + 6] = fmin(min[k + 6], sp[k]);
+					max[k + 0] = fmax(max[k + 0], dp[k]);
+					max[k + 3] = fmax(max[k + 3], ep[k]);
+					max[k + 6] = fmax(max[k + 6], sp[k]);
+				}
+			}
+			for(unsigned k = 0; k < 3; k++)
+			{
 				fprintf(file[k + 0], "%+.6e %+.6e %+.6e\n", x1, x2, dp[k]);
 				fprintf(file[k + 3], "%+.6e %+.6e %+.6e\n", x1, x2, ep[k]);
 				fprintf(file[k + 6], "%+.6e %+.6e %+.6e\n", x1, x2, sp[k]);
@@ -187,6 +209,10 @@ static void derived(void)
 		{
 			fprintf(file[i], "\n");
 		}
+	}
+	for(unsigned i = 0; i < 9; i++)
+	{
+		printf("%4s - min: %+.6e max: %+.6e\n", names[i], min[i], max[i]);
 	}
 	for(unsigned i = 0; i < 9; i++)
 	{
@@ -223,6 +249,7 @@ int main(int argc, char** argv)
 	system("gnuplot -p -e \"file='M11.txt'; name = 'M_{11}'\" plot.gp > nul");
 	system("gnuplot -p -e \"file='M12.txt'; name = 'M_{22}'\" plot.gp > nul");
 	system("gnuplot -p -e \"file='M22.txt'; name = 'M_{12}'\" plot.gp > nul");
+	printf("%+.6e\n", 0.142 * q / E / t / t / t / 3.31);
 	//return
 	return 0;
 }
