@@ -73,16 +73,31 @@ static bool input_load(void)
 	{
 		fprintf(fout, "\tSize: ");
 		fscanf(fin, "%lf", &s[0]);
+		if(s[0] == 0)
+		{
+			fprintf(fout, "\tInvalid input!\n");
+			return false;
+		}
 	}
 	if(lt == 3)
 	{
 		fprintf(fout, "\tSize: ");
 		fscanf(fin, "%lf", &s[1]);
+		if(s[1] == 0)
+		{
+			fprintf(fout, "\tInvalid input!\n");
+			return false;
+		}
 	}
 	if(lt == 4)
 	{
 		fprintf(fout, "\tSize: ");
 		fscanf(fin, "%lf %lf", &s[0], &s[1]);
+		if(s[0] == 0 || s[1] == 0)
+		{
+			fprintf(fout, "\tInvalid input!\n");
+			return false;
+		}
 	}
 	if(x[0] - s[0] / 2 < 0 || x[0] + s[0] / 2 > w || x[1] + s[1] / 2 < 0 || x[1] - s[1] / 2 > h)
 	{
@@ -131,7 +146,11 @@ static void solve(void)
 			}
 			if(lt == 2)
 			{
-				qn[nt * i + j] = q / s1 / s2 * sin(r1 * x1) * sin(r2 * x2) * sin(r1 * s1 / 2) * sin(r2 * s2 / 2);
+				qn[nt * i + j] = 0;
+			}
+			if(lt == 3)
+			{
+				qn[nt * i + j] = 0;
 			}
 			if(lt == 4)
 			{
@@ -144,15 +163,14 @@ static void solve(void)
 static void derived(void)
 {
 	FILE* file[9];
+	char path[200];
 	double min[9], max[9];
 	const unsigned a = m[0] + 1;
 	const unsigned b = m[1] + 1;
 	const char* names[] = {"u3", "t1", "t2", "k11", "k22", "k12", "M11", "M22", "M12"};
 	for(unsigned i = 0; i < 9; i++)
 	{
-		char path[200];
-		strcat(strcpy(path, names[i]), ".txt");
-		file[i] = fopen(path, "w");
+		file[i] = fopen(strcat(strcat(strcpy(path, "data/"), names[i]), ".txt"), "w");
 	}
 	for(unsigned i = 0; i <= m[1]; i++)
 	{
@@ -240,16 +258,15 @@ int main(int argc, char** argv)
 	cleanup();
 	quitter();
 	//plot
-	system("gnuplot -p -e \"file='u3.txt'; name = 'u_3'\" plot.gp > nul");
-	system("gnuplot -p -e \"file='t1.txt'; name = '{/Symbol q}_1'\" plot.gp > nul");
-	system("gnuplot -p -e \"file='t2.txt'; name = '{/Symbol q}_2'\" plot.gp > nul");
-	system("gnuplot -p -e \"file='k11.txt'; name = '{/Symbol k}_{11}'\" plot.gp > nul");
-	system("gnuplot -p -e \"file='k22.txt'; name = '{/Symbol k}_{22}'\" plot.gp > nul");
-	system("gnuplot -p -e \"file='k12.txt'; name = '{/Symbol k}_{12}'\" plot.gp > nul");
-	system("gnuplot -p -e \"file='M11.txt'; name = 'M_{11}'\" plot.gp > nul");
-	system("gnuplot -p -e \"file='M12.txt'; name = 'M_{22}'\" plot.gp > nul");
-	system("gnuplot -p -e \"file='M22.txt'; name = 'M_{12}'\" plot.gp > nul");
-	printf("%+.6e\n", 0.142 * q / E / t / t / t / 3.31);
+	system("gnuplot -p -e \"file='data/u3.txt'; name = 'u_3'\" plot.gp > nul");
+	system("gnuplot -p -e \"file='data/t1.txt'; name = '{/Symbol q}_1'\" plot.gp > nul");
+	system("gnuplot -p -e \"file='data/t2.txt'; name = '{/Symbol q}_2'\" plot.gp > nul");
+	system("gnuplot -p -e \"file='data/k11.txt'; name = '{/Symbol k}_{11}'\" plot.gp > nul");
+	system("gnuplot -p -e \"file='data/k22.txt'; name = '{/Symbol k}_{22}'\" plot.gp > nul");
+	system("gnuplot -p -e \"file='data/k12.txt'; name = '{/Symbol k}_{12}'\" plot.gp > nul");
+	system("gnuplot -p -e \"file='data/M11.txt'; name = 'M_{11}'\" plot.gp > nul");
+	system("gnuplot -p -e \"file='data/M12.txt'; name = 'M_{22}'\" plot.gp > nul");
+	system("gnuplot -p -e \"file='data/M22.txt'; name = 'M_{12}'\" plot.gp > nul");
 	//return
 	return 0;
 }

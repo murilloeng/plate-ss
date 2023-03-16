@@ -46,6 +46,7 @@ debug :
 	@devenv /debugexe $(out)
 
 setup :
+	@if not exist data mkdir data
 	@if not exist dist\windows\$(mode) mkdir dist\windows\$(mode)
 
 $(out) : setup $(DLLS) $(obj)
